@@ -9,6 +9,11 @@ import {
 
 export type LetterType = 'x0' | 'x1' | 'q4' | 'language';
 
+type AuthoringLetterPersonalisation = {
+  recipient: string;
+  customPersonalisation: Record<string, string>;
+};
+
 export type AuthoringLetterInputs = {
   name: string;
   letterType: LetterType;
@@ -19,6 +24,8 @@ export type AuthoringLetterInputs = {
   fileName: string;
   letterVariantName: string;
   language?: string;
+  longPersonalisation: AuthoringLetterPersonalisation;
+  shortPersonalisation: AuthoringLetterPersonalisation;
 };
 
 export type AuthoringLetterUpdates = {
@@ -32,11 +39,6 @@ type AuthoringLetterPreviewData = {
   campaignId: string;
   letterVariantName: string;
   language?: string;
-};
-
-export type AuthoringLetterPersonalisation = {
-  recipient: string;
-  customPersonalisation: Record<string, string>;
 };
 
 type LetterTypeTextMap = Record<
@@ -170,9 +172,9 @@ function checkAuthoringTemplateDetailsTable(
 
     for (const link of links) {
       if (expectLinks) {
-        expect(link).toBeVisible();
+        await expect(link).toBeVisible();
       } else {
-        expect(link).toBeHidden();
+        await expect(link).toBeHidden();
       }
     }
   });
@@ -265,7 +267,7 @@ function renderLetterPreview(
 
     const tabPanel = basePage.page.getByRole('tabpanel', { name: tab });
 
-    expect(tabPanel).toBeVisible();
+    await expect(tabPanel).toBeVisible();
 
     const iframe = tabPanel.locator('iframe');
 
@@ -363,8 +365,6 @@ async function previewAuthoringLetterApproved(
 export async function createAndApproveAuthoringLetter(
   props: CommonStepsProps,
   initialInputs: AuthoringLetterInputs,
-  shortPersonalisation: AuthoringLetterPersonalisation,
-  longPersonalisation: AuthoringLetterPersonalisation,
   updates: AuthoringLetterUpdates = {}
 ) {
   const { basePage } = props;
@@ -421,9 +421,17 @@ export async function createAndApproveAuthoringLetter(
 
   await previewAuthoringLetterDraft(props, letterState);
 
-  await renderLetterPreview(props, 'Short examples', shortPersonalisation);
+  await renderLetterPreview(
+    props,
+    'Short examples',
+    initialInputs.shortPersonalisation
+  );
 
-  await renderLetterPreview(props, 'Long examples', longPersonalisation);
+  await renderLetterPreview(
+    props,
+    'Long examples',
+    initialInputs.longPersonalisation
+  );
 
   await basePage.clickButtonByName('Approve template');
 

@@ -180,13 +180,13 @@ function messagePlanDraft(
     }
 
     if (expectedState.templates.email) {
-      expect(getSelectedTemplateNamesEditPage(props, 'EMAIL')).toHaveText(
+      await expect(getSelectedTemplateNamesEditPage(props, 'EMAIL')).toHaveText(
         expectedState.templates.email
       );
     }
 
     if (expectedState.templates.sms) {
-      expect(getSelectedTemplateNamesEditPage(props, 'SMS')).toHaveText(
+      await expect(getSelectedTemplateNamesEditPage(props, 'SMS')).toHaveText(
         expectedState.templates.sms
       );
     }
@@ -194,18 +194,18 @@ function messagePlanDraft(
     if (expectedState.templates.letters) {
       const { letters } = expectedState.templates;
 
-      expect(getSelectedTemplateNamesEditPage(props, 'LETTER')).toHaveText(
-        letters.standard
-      );
+      await expect(
+        getSelectedTemplateNamesEditPage(props, 'LETTER')
+      ).toHaveText(letters.standard);
 
       if (letters.largePrint) {
-        expect(getSelectedTemplateNamesEditPage(props, 'x1')).toHaveText(
+        await expect(getSelectedTemplateNamesEditPage(props, 'x1')).toHaveText(
           letters.largePrint
         );
       }
 
       if (letters.bsl) {
-        expect(getSelectedTemplateNamesEditPage(props, 'q4')).toHaveText(
+        await expect(getSelectedTemplateNamesEditPage(props, 'q4')).toHaveText(
           letters.bsl
         );
       }
@@ -216,7 +216,9 @@ function messagePlanDraft(
           'foreign-language'
         );
         for (const languageTemplate of letters.languages) {
-          expect(templateNames).toHaveText(languageTemplate);
+          await expect(
+            templateNames.filter({ hasText: languageTemplate })
+          ).toBeVisible();
         }
       }
     }
@@ -356,13 +358,13 @@ function reviewAndMoveToProduction(
     }
 
     if (templates.email) {
-      expect(getSelectedTemplateNamesReviewPage(props, 'Email')).toHaveText(
-        templates.email
-      );
+      await expect(
+        getSelectedTemplateNamesReviewPage(props, 'Email')
+      ).toHaveText(templates.email);
     }
 
     if (templates.sms) {
-      expect(
+      await expect(
         getSelectedTemplateNamesReviewPage(props, 'Text message (SMS)')
       ).toHaveText(templates.sms);
     }
@@ -370,18 +372,18 @@ function reviewAndMoveToProduction(
     if (templates.letters) {
       const { letters } = templates;
 
-      expect(
+      await expect(
         getSelectedTemplateNamesReviewPage(props, 'Standard English letter')
       ).toHaveText(letters.standard);
 
       if (letters.largePrint) {
-        expect(
+        await expect(
           getSelectedTemplateNamesReviewPage(props, 'Large print letter')
         ).toHaveText(letters.largePrint);
       }
 
       if (letters.bsl) {
-        expect(
+        await expect(
           getSelectedTemplateNamesReviewPage(
             props,
             'British Sign Language letter'
@@ -395,7 +397,9 @@ function reviewAndMoveToProduction(
           'Other language letters'
         );
         for (const languageTemplate of letters.languages) {
-          expect(templateNames).toHaveText(languageTemplate);
+          await expect(
+            templateNames.filter({ hasText: languageTemplate })
+          ).toBeVisible();
         }
       }
     }
@@ -449,13 +453,13 @@ function previewProductionMessagePlan(
     }
 
     if (templates.email) {
-      expect(getSelectedTemplateNamesReviewPage(props, 'Email')).toHaveText(
-        templates.email
-      );
+      await expect(
+        getSelectedTemplateNamesReviewPage(props, 'Email')
+      ).toHaveText(templates.email);
     }
 
     if (templates.sms) {
-      expect(
+      await expect(
         getSelectedTemplateNamesReviewPage(props, 'Text message (SMS)')
       ).toHaveText(templates.sms);
     }
@@ -463,18 +467,18 @@ function previewProductionMessagePlan(
     if (templates.letters) {
       const { letters } = templates;
 
-      expect(
+      await expect(
         getSelectedTemplateNamesReviewPage(props, 'Standard English letter')
       ).toHaveText(letters.standard);
 
       if (letters.largePrint) {
-        expect(
+        await expect(
           getSelectedTemplateNamesReviewPage(props, 'Large print letter')
         ).toHaveText(letters.largePrint);
       }
 
       if (letters.bsl) {
-        expect(
+        await expect(
           getSelectedTemplateNamesReviewPage(
             props,
             'British Sign Language letter'
@@ -488,7 +492,9 @@ function previewProductionMessagePlan(
           'Other language letters'
         );
         for (const languageTemplate of letters.languages) {
-          expect(templateNames).toHaveText(languageTemplate);
+          await expect(
+            templateNames.filter({ hasText: languageTemplate })
+          ).toBeVisible();
         }
       }
     }
@@ -577,18 +583,18 @@ export async function createAndSubmitMessagePlan(
         languages: letters.languages,
       };
     }
-
-    await messagePlanDraft(props, expectedState);
-
-    await basePage.clickButtonByName('Move to production');
-
-    await getReadyToMoveToProduction(props, expectedState);
-    await reviewAndMoveToProduction(props, expectedState);
-
-    expectedState.status = 'Production';
-
-    await selectMessagePlanFromList(props, expectedState);
-
-    await previewProductionMessagePlan(props, expectedState);
   }
+
+  await messagePlanDraft(props, expectedState);
+
+  await basePage.clickButtonByName('Move to production');
+
+  await getReadyToMoveToProduction(props, expectedState);
+  await reviewAndMoveToProduction(props, expectedState);
+
+  expectedState.status = 'Production';
+
+  await selectMessagePlanFromList(props, expectedState);
+
+  await previewProductionMessagePlan(props, expectedState);
 }
