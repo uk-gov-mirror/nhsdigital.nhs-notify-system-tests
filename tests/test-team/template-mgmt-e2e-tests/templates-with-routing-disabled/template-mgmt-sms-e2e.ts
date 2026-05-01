@@ -10,7 +10,7 @@ import {
   startNewTemplate,
   previewPageChooseSubmit,
   createSmsTemplate,
-} from '../../functions/template-mgmt-e2e-common-steps';
+} from '../../steps/template-mgmt-e2e-common-steps';
 
 test.use({ storageState: 'login-state/primary.json' });
 

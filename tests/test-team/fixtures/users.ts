@@ -26,4 +26,8 @@ export const users: Record<string, StaticUserConfig> = {
     clientKey: 'DeleteRoutingEnabledProduct',
     clientConfig: clients['DeleteRoutingEnabledProduct'].auth,
   },
+  letterAuthoringEnabled: {
+    clientKey: 'LetterAuthoringEnabledProduct',
+    clientConfig: clients['LetterAuthoringEnabledProduct'].auth,
+  },
 };

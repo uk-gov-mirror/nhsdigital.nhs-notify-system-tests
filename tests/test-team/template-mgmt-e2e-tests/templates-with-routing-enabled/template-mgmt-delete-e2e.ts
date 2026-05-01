@@ -9,13 +9,11 @@ import {
   startNewTemplate,
   deleteTemplate,
   createEmailTemplate,
-} from '../../functions/template-mgmt-e2e-common-steps';
+} from '../../steps/template-mgmt-e2e-common-steps';
 
 test.use({ storageState: 'login-state/deleteRoutingEnabled.json' });
 
-test(`User deletes a template - routing enabled`, async ({
-  page,
-}) => {
+test(`User deletes a template - routing enabled`, async ({ page }) => {
   const props = {
     basePage: new TemplateMgmtBasePage(page),
   };

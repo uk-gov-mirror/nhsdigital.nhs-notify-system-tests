@@ -2,19 +2,15 @@ import { test, expect, Page } from '@playwright/test';
 import { TemplateMgmtBasePage } from '../pages/template-mgmt-base-page';
 import { TemplateMgmtLetterPage } from '../pages/template-mgmt-letter-page';
 
-type CommonStepsProps = {
-  basePage: TemplateMgmtBasePage;
-};
-
-type CommonLetterStepsProps = CommonStepsProps & {
-  letterPage: TemplateMgmtLetterPage;
+export type CommonStepsProps<
+  T extends TemplateMgmtBasePage = TemplateMgmtBasePage,
+> = {
+  basePage: T;
 };
 
 export function startPage({ basePage }: CommonStepsProps) {
   return test.step('start page', async () => {
-    await basePage.navigateTo(
-      '/templates/create-and-submit-templates'
-    );
+    await basePage.navigateTo('/templates/create-and-submit-templates');
     await expect(basePage.page).toHaveURL(
       '/templates/create-and-submit-templates'
     );
@@ -33,12 +29,11 @@ export function startNewTemplate({ basePage }: CommonStepsProps) {
 
 export function chooseTemplate(
   { basePage }: CommonStepsProps,
-  channel: string
+  channel: string,
+  letterType?: string
 ) {
   return test.step('Choose template type', async () => {
-    await expect(basePage.page).toHaveURL(
-      '/templates/choose-a-template-type'
-    );
+    await expect(basePage.page).toHaveURL('/templates/choose-a-template-type');
 
     await expect(basePage.pageHeader).toHaveText(
       'Choose a template type to create'
@@ -46,41 +41,35 @@ export function chooseTemplate(
 
     await basePage.checkRadio(channel);
 
+    if (letterType) {
+      await basePage.checkRadio(`${letterType} letter`);
+    }
+
     await basePage.clickButtonByName('Continue');
   });
 }
 
 export function createLetterTemplate(
-  { basePage, letterPage }: CommonLetterStepsProps,
+  { basePage }: CommonStepsProps<TemplateMgmtLetterPage>,
   name: string,
   language: string,
   inputFileName: string
-
 ) {
   return test.step('Create template', async () => {
-    await expect(basePage.page).toHaveURL(
-      '/templates/upload-letter-template'
-    );
+    await expect(basePage.page).toHaveURL('/templates/upload-letter-template');
 
-    await expect(basePage.pageHeader).toHaveText(
-      `Upload a letter template`
-    );
+    await expect(basePage.pageHeader).toHaveText(`Upload a letter template`);
 
     await basePage.fillTextBox('Template name', name);
 
-    await letterPage.selectLetterOption('Letter type', 'x1');
-    await letterPage.selectLetterOption('Letter language', language);
-    await letterPage.uploadLetterTemplate(inputFileName);
+    await basePage.selectLetterOption('Letter type', 'x1');
+    await basePage.selectLetterOption('Letter language', language);
+    await basePage.uploadLetterTemplate(inputFileName);
   });
 }
 
-export async function createEmailTemplate(
-  page: Page,
-  name: string,
-) {
-  await expect(page).toHaveURL(
-    '/templates/create-email-template'
-  );
+export async function createEmailTemplate(page: Page, name: string) {
+  await expect(page).toHaveURL('/templates/create-email-template');
 
   await page.waitForLoadState('load');
   await expect(page.getByTestId('navigation-links')).toBeVisible();
@@ -94,18 +83,13 @@ export async function createEmailTemplate(
   await page.getByText('Save and preview').click({
     position: {
       x: 50,
-      y: 50
-    }
+      y: 50,
+    },
   });
 }
 
-export async function createSmsTemplate(
-  page: Page,
-  name: string,
-) {
-  await expect(page).toHaveURL(
-    '/templates/create-text-message-template'
-  );
+export async function createSmsTemplate(page: Page, name: string) {
+  await expect(page).toHaveURL('/templates/create-text-message-template');
 
   await page.waitForLoadState('load');
   await expect(page.getByTestId('navigation-links')).toBeVisible();
@@ -115,23 +99,17 @@ export async function createSmsTemplate(
 
   await page.getByLabel('Message').pressSequentially('E2E Message');
 
-
   await expect(page.getByTestId('character-message-count')).toBeVisible();
   await page.getByText('Save and preview').click({
     position: {
       x: 50,
-      y: 50
-    }
+      y: 50,
+    },
   });
 }
 
-export async function createNhsAppTemplate(
-  page: Page,
-  name: string,
-) {
-  await expect(page).toHaveURL(
-    '/templates/create-nhs-app-template'
-  );
+export async function createNhsAppTemplate(page: Page, name: string) {
+  await expect(page).toHaveURL('/templates/create-nhs-app-template');
 
   await page.waitForLoadState('load');
   await expect(page.getByTestId('navigation-links')).toBeVisible();
@@ -145,15 +123,14 @@ export async function createNhsAppTemplate(
   await page.getByText('Save and preview').click({
     position: {
       x: 50,
-      y: 50
-    }
+      y: 50,
+    },
   });
 }
-
 
 export function submitTemplate(
-  { basePage, letterPage }: CommonLetterStepsProps,
-  channelPath: string,
+  { basePage }: CommonStepsProps<TemplateMgmtLetterPage>,
+  channelPath: string
 ) {
   return test.step('Submit template', async () => {
     await basePage.clickButtonByName('Submit template');
@@ -165,8 +142,8 @@ export function submitTemplate(
 
     await basePage.checkStatus('Not yet submitted');
 
-    await letterPage.submitLetterTemplate();
-  })
+    await basePage.submitLetterTemplate();
+  });
 }
 
 export function previewPage(
@@ -186,7 +163,7 @@ export function previewPage(
 
 export function previewPageChooseSubmit(
   { basePage }: CommonStepsProps,
-  channelPath: string,
+  channelPath: string
 ) {
   return test.step('Preview page - select submit', async () => {
     await basePage.checkRadio('Submit template');
@@ -200,34 +177,22 @@ export function previewPageChooseSubmit(
   });
 }
 
-export function deleteTemplate(
-  { basePage }: CommonStepsProps,
-  name: string
-) {
+export function deleteTemplate({ basePage }: CommonStepsProps, name: string) {
   return test.step('Delete template', async () => {
     await basePage.goBackLink.click();
-    await expect(basePage.page).toHaveURL(
-      '/templates/message-templates'
-    );
+    await expect(basePage.page).toHaveURL('/templates/message-templates');
     const rowCount = await basePage.tableRows();
-    console.log(rowCount);
 
-    await basePage.clickLinkByName('Delete ' + name);
+    await basePage.clickLinkByName('Delete ' + name, { exact: true });
     await basePage.clickButtonByName('No, go back');
-    await expect(basePage.page).toHaveURL(
-      '/templates/message-templates'
-    );
+    await expect(basePage.page).toHaveURL('/templates/message-templates');
     let rowCountCheck = await basePage.tableRows();
-    console.log(rowCountCheck);
     expect(rowCount).toBe(rowCount);
 
-    await basePage.clickLinkByName('Delete ' + name);
+    await basePage.clickLinkByName('Delete ' + name, { exact: true });
     await basePage.clickButtonByName('Yes, delete template');
-    await expect(basePage.page).toHaveURL(
-      '/templates/message-templates'
-    );
+    await expect(basePage.page).toHaveURL('/templates/message-templates');
     rowCountCheck = await basePage.tableRows();
-    console.log(rowCount - 1);
     expect(rowCountCheck).toBe(rowCount - 1);
     expect(basePage.templateToDelete).not.toBeVisible();
   });
@@ -235,15 +200,12 @@ export function deleteTemplate(
 
 export function copyTemplate(
   { basePage }: CommonStepsProps,
-  routingEnabled = false,
+  routingEnabled = false
 ) {
   return test.step('Copy template', async () => {
     await basePage.goBackLink.click();
-    await expect(basePage.page).toHaveURL(
-      '/templates/message-templates'
-    );
+    await expect(basePage.page).toHaveURL('/templates/message-templates');
     const rowCount = await basePage.tableRows();
-    console.log(rowCount);
 
     const copyLink = await basePage.page.$('#copy-template-link-0');
     if (copyLink) {
@@ -259,9 +221,7 @@ export function copyTemplate(
     await basePage.checkRadio('Email');
     await basePage.clickButtonByName('Continue');
 
-    await expect(basePage.page).toHaveURL(
-      '/templates/message-templates'
-    );
+    await expect(basePage.page).toHaveURL('/templates/message-templates');
 
     await basePage.page.reload(); // shouldn't need to do this
 
@@ -278,12 +238,13 @@ export function copyTemplate(
     await basePage.clickButtonByName('Save and preview');
     await expect(basePage.pageHeader).toHaveText(editedTemplateName);
     await basePage.clickBackLink();
-    await basePage.page.waitForSelector('text=Message templates', { timeout: 10_000 });
+    await basePage.page.waitForSelector('text=Message templates', {
+      timeout: 10_000,
+    });
     await basePage.waitForLoad();
     await expect(basePage.templateEdited(editedTemplateName)).toBeVisible();
 
     const rowCountCheck = await basePage.tableRows();
-    console.log(rowCountCheck)
     expect(rowCountCheck).toBe(rowCount + 1);
   });
 }

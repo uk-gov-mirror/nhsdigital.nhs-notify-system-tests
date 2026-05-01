@@ -61,7 +61,7 @@
     ],
     "cSpell.language": "en-GB",
     "editor.wordWrap": "off",
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "[plaintext]": {
       "editor.wordWrap": "off",
       "editor.formatOnSave": false,

@@ -7,12 +7,12 @@ import {
 import { users } from '../../fixtures/users';
 
 async function main() {
-  const { lifecycleServiceDir, targetEnvrionment, runId } =
+  const { lifecycleServiceDir, targetEnvironment, runId } =
     parseSetupTeardownArgs(process.argv);
 
   const stateFile = new StateFile(lifecycleServiceDir, runId);
 
-  const authHelper = await AuthHelper.init(targetEnvrionment, 'product', runId);
+  const authHelper = await AuthHelper.init(targetEnvironment, 'product', runId);
 
   const createdUserEntries: [string, User][] = await Promise.all(
     Object.entries(users).map(async ([userKey, config]) => {

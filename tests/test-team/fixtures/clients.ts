@@ -7,7 +7,7 @@ export const clients: Record<string, StaticClientConfig> = {
       features: {
         proofing: false,
         routing: false,
-        legacyLetters: true
+        legacyLetters: true,
       },
     },
     auth: {
@@ -20,7 +20,7 @@ export const clients: Record<string, StaticClientConfig> = {
       features: {
         proofing: false,
         routing: false,
-        legacyLetters: true
+        legacyLetters: true,
       },
     },
     auth: {
@@ -33,7 +33,7 @@ export const clients: Record<string, StaticClientConfig> = {
       features: {
         proofing: false,
         routing: false,
-        legacyLetters: true
+        legacyLetters: true,
       },
     },
     auth: {
@@ -46,7 +46,7 @@ export const clients: Record<string, StaticClientConfig> = {
       features: {
         proofing: false,
         routing: true,
-        legacyLetters: true
+        legacyLetters: true,
       },
     },
     auth: {
@@ -59,7 +59,7 @@ export const clients: Record<string, StaticClientConfig> = {
       features: {
         proofing: false,
         routing: true,
-        legacyLetters: true
+        legacyLetters: true,
       },
     },
     auth: {
@@ -72,11 +72,27 @@ export const clients: Record<string, StaticClientConfig> = {
       features: {
         proofing: true,
         routing: true,
-        legacyLetters: true
+        legacyLetters: true,
       },
     },
     auth: {
       name: 'Delete - Routing Enabled',
+    },
+  },
+  LetterAuthoringEnabledProduct: {
+    templates: {
+      campaignIds: [
+        'LetterAuthoringEnabled-Campaign',
+        'LetterAuthoringEnabled-Campaign2',
+      ],
+      features: {
+        proofing: false,
+        routing: true,
+        letterAuthoring: true,
+      },
+    },
+    auth: {
+      name: 'Letter Authoring Enabled',
     },
   },
 };

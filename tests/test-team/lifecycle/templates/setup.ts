@@ -1,32 +1,45 @@
 import { randomUUID } from 'node:crypto';
 import {
   createClientConfig,
+  getCis2ClientId,
   increaseSftpPollingFrequency,
-  type StaticClientConfig,
   parseSetupTeardownArgs,
   StateFile,
-  getCis2ClientId,
-  TemplateFactory,
   StorageHelper,
+  TemplateFactory,
   TemplateType,
+  LetterVariantFactory,
+  getLetterVariantCacheTTL,
+  setLetterVariantCacheTTL,
 } from 'nhs-notify-system-tests-shared';
 import { clients } from '../../fixtures/clients';
+import { GLOBAL_LETTER_VARIANT_KEY } from '../../fixtures/letter-variants';
 
 async function main() {
-  const { lifecycleServiceDir, targetEnvrionment, runId } =
+  const { lifecycleServiceDir, targetEnvironment, runId } =
     parseSetupTeardownArgs(process.argv);
 
   const stateFile = new StateFile(lifecycleServiceDir, runId);
 
-  const sftpPollingFrequency = await increaseSftpPollingFrequency(
-    targetEnvrionment
-  );
+  const sftpPollingFrequency =
+    await increaseSftpPollingFrequency(targetEnvironment);
 
   stateFile.setValue(
     'initialState',
     'sftpPollingFrequency',
     sftpPollingFrequency
   );
+
+  const letterVariantCacheTTL =
+    await getLetterVariantCacheTTL(targetEnvironment);
+
+  stateFile.setValue(
+    'initialState',
+    'letterVariantCacheTTL',
+    letterVariantCacheTTL
+  );
+
+  await setLetterVariantCacheTTL(targetEnvironment, '0');
 
   const clientEntries = Object.entries(clients).map(
     ([key, config]) =>
@@ -35,16 +48,15 @@ async function main() {
 
   await Promise.all(
     clientEntries.map(([, { id, config }]) =>
-      createClientConfig(targetEnvrionment, id, config, 'product')
+      createClientConfig(targetEnvironment, id, config, 'product')
     )
   );
 
-  const clientIds = Object.fromEntries(clientEntries.map(([key, { id }]) => [key, id]));
-
-  stateFile.setValues(
-    'clientIds',
-    clientIds,
+  const clientIds = Object.fromEntries(
+    clientEntries.map(([key, { id }]) => [key, id])
   );
+
+  stateFile.setValues('clientIds', clientIds);
 
   const cis2ClientId = await getCis2ClientId();
 
@@ -59,7 +71,11 @@ async function main() {
       message: 'multi-channel-routing-config-nhsapp-message',
     }
   );
-  stateFile.setValue('templates', 'multiChannelRoutingConfigNhsApp', multiChannelRoutingConfigNhsAppTemplate);
+  stateFile.setValue(
+    'templates',
+    'multiChannelRoutingConfigNhsApp',
+    multiChannelRoutingConfigNhsAppTemplate
+  );
 
   const multiChannelRoutingConfigEmailTemplate = TemplateFactory.create(
     randomUUID(),
@@ -71,7 +87,11 @@ async function main() {
       subject: 'multi-channel-routing-config-email-template-subject',
     }
   );
-  stateFile.setValue('templates', 'multiChannelRoutingConfigEmail', multiChannelRoutingConfigEmailTemplate);
+  stateFile.setValue(
+    'templates',
+    'multiChannelRoutingConfigEmail',
+    multiChannelRoutingConfigEmailTemplate
+  );
 
   const multiChannelRoutingConfigSmsTemplate = TemplateFactory.create(
     randomUUID(),
@@ -82,13 +102,37 @@ async function main() {
       message: 'multi-channel-routing-config-sms-template-message',
     }
   );
-  stateFile.setValue('templates', 'multiChannelRoutingConfigSms', multiChannelRoutingConfigSmsTemplate);
+  stateFile.setValue(
+    'templates',
+    'multiChannelRoutingConfigSms',
+    multiChannelRoutingConfigSmsTemplate
+  );
 
-  await new StorageHelper(`nhs-notify-${targetEnvrionment}-app-api-templates`, [
-    multiChannelRoutingConfigNhsAppTemplate,
-    multiChannelRoutingConfigEmailTemplate,
-    multiChannelRoutingConfigSmsTemplate,
-  ]).seedData();
+  await new StorageHelper(
+    `nhs-notify-${targetEnvironment}-app-api-templates`,
+    ['owner', 'id'],
+    [
+      multiChannelRoutingConfigNhsAppTemplate,
+      multiChannelRoutingConfigEmailTemplate,
+      multiChannelRoutingConfigSmsTemplate,
+    ]
+  ).seedData();
+
+  const globalVariant = LetterVariantFactory.create({
+    name: `system-tests-global-variant-${runId}`,
+  });
+
+  await new StorageHelper(
+    `nhs-notify-${targetEnvironment}-app-api-letter-variants`,
+    ['PK', 'SK'],
+    [globalVariant]
+  ).seedData();
+
+  stateFile.setValue(
+    'letterVariants',
+    GLOBAL_LETTER_VARIANT_KEY,
+    globalVariant
+  );
 
   await stateFile.persist();
 }

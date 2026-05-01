@@ -18,8 +18,8 @@ export default defineConfig({
     ...(process.env.PLAYWRIGHT_ZAP_PROXY && {
       ignoreHTTPSErrors: true,
       proxy: { server: process.env.PLAYWRIGHT_ZAP_PROXY },
-      acceptDownloads: true
-    })
+      acceptDownloads: true,
+    }),
   },
 
   projects: [
@@ -38,7 +38,7 @@ export default defineConfig({
           height: 1200,
           width: 1600,
         },
-        headless: true
+        headless: true,
       },
     },
   ],

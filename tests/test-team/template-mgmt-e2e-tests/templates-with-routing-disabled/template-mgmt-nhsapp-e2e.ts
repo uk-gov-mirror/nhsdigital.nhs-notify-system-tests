@@ -8,7 +8,7 @@ import {
   startNewTemplate,
   previewPageChooseSubmit,
   createNhsAppTemplate,
-} from '../../functions/template-mgmt-e2e-common-steps';
+} from '../../steps/template-mgmt-e2e-common-steps';
 
 test.use({ storageState: 'login-state/primary.json' });
 
@@ -22,11 +22,11 @@ test(`User creates and submits a new nhsapp template successfully`, async ({
   const channelPath = 'nhs-app';
   const name = 'nhs app template e2e test';
 
-    await startPage(props);
-    await startNewTemplate(props);
-    await chooseTemplate(props, channel);
-    await createNhsAppTemplate(page, name);
-    await previewPage(props, channelPath, name);
-    await previewPageChooseSubmit(props, channelPath);
-    await submitPage(props, channelPath, name);
+  await startPage(props);
+  await startNewTemplate(props);
+  await chooseTemplate(props, channel);
+  await createNhsAppTemplate(page, name);
+  await previewPage(props, channelPath, name);
+  await previewPageChooseSubmit(props, channelPath);
+  await submitPage(props, channelPath, name);
 });

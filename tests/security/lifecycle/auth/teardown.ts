@@ -7,14 +7,14 @@ import z from 'zod';
 import { users } from '../../fixtures/users';
 
 async function main() {
-  const { lifecycleServiceDir, targetEnvrionment, runId } =
+  const { lifecycleServiceDir, targetEnvironment, runId } =
     parseSetupTeardownArgs(process.argv);
 
   const stateFile = new StateFile(lifecycleServiceDir, runId);
   await stateFile.loadFromDisk();
 
   const authHelper = await AuthHelper.init(
-    targetEnvrionment,
+    targetEnvironment,
     'security',
     runId
   );

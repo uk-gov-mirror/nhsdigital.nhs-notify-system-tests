@@ -6,7 +6,7 @@ import {
   previewPage,
   startNewTemplate,
   createNhsAppTemplate,
-} from '../../functions/template-mgmt-e2e-common-steps';
+} from '../../steps/template-mgmt-e2e-common-steps';
 
 test.use({ storageState: 'login-state/primaryRoutingEnabled.json' });
 

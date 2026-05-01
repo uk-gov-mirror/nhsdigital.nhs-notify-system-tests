@@ -8,7 +8,7 @@ import {
 import z from 'zod';
 
 async function main() {
-  const { lifecycleServiceDir, targetEnvrionment, runId } =
+  const { lifecycleServiceDir, targetEnvironment, runId } =
     parseSetupTeardownArgs(process.argv);
 
   const stateFile = new StateFile(lifecycleServiceDir, runId);
@@ -23,7 +23,7 @@ async function main() {
   );
 
   await restoreSftpPollingFrequency(
-    targetEnvrionment,
+    targetEnvironment,
     initialSftpPollingFrequency
   ).catch((error) => {
     exit = 1;
@@ -37,7 +37,7 @@ async function main() {
     )
   );
 
-  await deleteClientConfigs(targetEnvrionment, clientIds).catch((error) => {
+  await deleteClientConfigs(targetEnvironment, clientIds).catch((error) => {
     exit = 1;
     console.error(error);
   });
@@ -50,18 +50,24 @@ async function main() {
 
   const deletedTemplates = await Promise.allSettled(
     [...clientIds, cis2ClientId].map((id) =>
-      deleteClientEntries(id, `nhs-notify-${targetEnvrionment}-app-api-templates`)
+      deleteClientEntries(
+        id,
+        `nhs-notify-${targetEnvironment}-app-api-templates`
+      )
     )
   );
 
   const deletedRoutingConfigs = await Promise.allSettled(
     [...clientIds, cis2ClientId].map((id) =>
-      deleteClientEntries(id, `nhs-notify-${targetEnvrionment}-app-api-routing-configuration`)
+      deleteClientEntries(
+        id,
+        `nhs-notify-${targetEnvironment}-app-api-routing-configuration`
+      )
     )
   );
 
-  const failures = [...deletedTemplates, ...deletedRoutingConfigs].flatMap((res) =>
-    res.status === 'rejected' ? [res.reason] : []
+  const failures = [...deletedTemplates, ...deletedRoutingConfigs].flatMap(
+    (res) => (res.status === 'rejected' ? [res.reason] : [])
   );
 
   if (failures.length) {

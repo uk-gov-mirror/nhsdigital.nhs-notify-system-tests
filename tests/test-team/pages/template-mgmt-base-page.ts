@@ -1,4 +1,4 @@
-import { Locator, type Page, expect } from "@playwright/test";
+import { Locator, type Page, expect } from '@playwright/test';
 
 export class TemplateMgmtBasePage {
   readonly page: Page;
@@ -37,31 +37,36 @@ export class TemplateMgmtBasePage {
     this.loginLink = page.locator(`//a[text()='Sign in']`);
 
     // Note: doing [class="nhsuk-back-link__link"] will not find the element if it has other class names
-    this.goBackLink = page.locator('#maincontent').getByRole('link', { name: 'Back to all templates' });
+    this.goBackLink = page
+      .locator('#maincontent')
+      .getByRole('link', { name: 'Back to all templates' });
 
-    this.pageHeader = page.getByRole("heading", { level: 1 });
+    this.pageHeader = page.getByRole('heading', { level: 1 });
 
-    this.errorSummary = page.getByRole("alert", { name: "There is a problem" });
+    this.errorSummary = page.getByRole('alert', { name: 'There is a problem' });
 
-    this.errorSummaryHeading = page.getByRole("heading", {
+    this.errorSummaryHeading = page.getByRole('heading', {
       level: 2,
-      name: "There is a problem",
+      name: 'There is a problem',
     });
 
-    this.errorSummaryList = this.errorSummary.getByRole("listitem");
+    this.errorSummaryList = this.errorSummary.getByRole('listitem');
 
     this.submitButton = page.locator('button.nhsuk-button[type="submit"]');
 
-    this.submitTemplateButton = page.getByText("Submit template");
+    this.submitTemplateButton = page.getByText('Submit template');
 
-    this.templateToDelete = page.getByRole('link', { name: 'Test delete', exact: true });
+    this.templateToDelete = page.getByRole('link', {
+      name: 'Test delete',
+      exact: true,
+    });
 
     this.templateEdited = (templateName: string) =>
       page.getByRole('link', { name: templateName, exact: true });
 
     this.skipLink = page
       .locator('[id="skip-link"]')
-      .and(page.getByText("Skip to main content"));
+      .and(page.getByText('Skip to main content'));
   }
 
   async navigateTo(url: string) {
@@ -77,15 +82,15 @@ export class TemplateMgmtBasePage {
   }
 
   async noTemplatesAvailable() {
-    return await this.page.getByTestId("no-templates-available").isVisible();
+    return await this.page.getByTestId('no-templates-available').isVisible();
   }
 
   async clickButtonByName(buttonName: string) {
-    await this.page.getByRole("button", { name: buttonName }).click();
+    await this.page.getByRole('button', { name: buttonName }).click();
   }
 
-  async clickLinkByName(linkName: string) {
-    await this.page.getByRole("link", { name: linkName, exact: true }).click();
+  async clickLinkByName(linkName: string, opts?: { exact?: boolean }) {
+    await this.page.getByRole('link', { name: linkName, ...opts }).click();
   }
 
   async clickSubmitButton() {
@@ -93,7 +98,7 @@ export class TemplateMgmtBasePage {
   }
 
   async loadPage(_: string) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   async clickBackLink() {
@@ -109,13 +114,23 @@ export class TemplateMgmtBasePage {
   }
 
   async fillTextBox(textBoxLabel: string, textBoxContent: string) {
-    await this.page
-      .getByLabel(textBoxLabel)
-      .fill(textBoxContent);
+    await this.page.getByLabel(textBoxLabel).fill(textBoxContent);
   }
 
   async checkRadio(radioName: string) {
-    await this.page.getByRole("radio", { name: radioName }).check();
+    await this.page.getByRole('radio', { name: radioName }).check();
+  }
+
+  async checkCheckbox(label: string) {
+    await this.page.getByRole('checkbox', { name: label }).check();
+  }
+
+  async selectOption(label: string, option: string) {
+    await this.page.getByLabel(label).selectOption(option);
+  }
+
+  async setFileInput(label: string, filename: string) {
+    await this.page.getByLabel(label).setInputFiles(filename);
   }
 
   async tableRows() {
@@ -125,12 +140,29 @@ export class TemplateMgmtBasePage {
   }
 
   async clickFirstTableRowLink() {
-    const link = this.page.locator('table:nth-of-type(1) tr:nth-of-type(1) td:nth-of-type(1) a');
-    await expect(link).toContainText("COPY");
+    const link = this.page.locator(
+      'table:nth-of-type(1) tr:nth-of-type(1) td:nth-of-type(1) a'
+    );
+    await expect(link).toContainText('COPY');
     await link.click();
   }
 
   async logOut() {
     await this.page.getByTestId('sign-out-link').click();
+  }
+
+  async clickNavigationLink(name: string) {
+    await this.page
+      .getByRole('navigation', { name: 'Menu' })
+      .getByRole('link', { name })
+      .click();
+  }
+
+  getSummaryListValue(label: string) {
+    const row = this.page.locator('.nhsuk-summary-list__row', {
+      has: this.page.locator('dt', { hasText: label }),
+    });
+
+    return row.locator('dd.nhsuk-summary-list__value');
   }
 }

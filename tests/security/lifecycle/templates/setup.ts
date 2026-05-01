@@ -12,14 +12,13 @@ import { clients } from '../../fixtures/clients';
 import { randomUUID } from 'node:crypto';
 
 async function main() {
-  const { lifecycleServiceDir, targetEnvrionment, runId } =
+  const { lifecycleServiceDir, targetEnvironment, runId } =
     parseSetupTeardownArgs(process.argv);
 
   const stateFile = new StateFile(lifecycleServiceDir, runId);
 
-  const sftpPollingFrequency = await increaseSftpPollingFrequency(
-    targetEnvrionment
-  );
+  const sftpPollingFrequency =
+    await increaseSftpPollingFrequency(targetEnvironment);
 
   stateFile.setValue(
     'initialState',
@@ -34,7 +33,7 @@ async function main() {
 
   await Promise.all(
     clientEntries.map(([, { id, config }]) =>
-      createClientConfig(targetEnvrionment, id, config, 'security')
+      createClientConfig(targetEnvironment, id, config, 'security')
     )
   );
 
@@ -62,7 +61,11 @@ async function main() {
       message: 'multi-channel-routing-config-nhsapp-message',
     }
   );
-  stateFile.setValue('templates', 'multiChannelRoutingConfigNhsApp', multiChannelRoutingConfigNhsAppTemplate);
+  stateFile.setValue(
+    'templates',
+    'multiChannelRoutingConfigNhsApp',
+    multiChannelRoutingConfigNhsAppTemplate
+  );
 
   const multiChannelRoutingConfigEmailTemplate = TemplateFactory.create(
     randomUUID(),
@@ -74,7 +77,11 @@ async function main() {
       subject: 'multi-channel-routing-config-email-template-subject',
     }
   );
-  stateFile.setValue('templates', 'multiChannelRoutingConfigEmail', multiChannelRoutingConfigEmailTemplate);
+  stateFile.setValue(
+    'templates',
+    'multiChannelRoutingConfigEmail',
+    multiChannelRoutingConfigEmailTemplate
+  );
 
   const multiChannelRoutingConfigSmsTemplate = TemplateFactory.create(
     randomUUID(),
@@ -85,9 +92,13 @@ async function main() {
       message: 'multi-channel-routing-config-sms-template-message',
     }
   );
-  stateFile.setValue('templates', 'multiChannelRoutingConfigSms', multiChannelRoutingConfigSmsTemplate);
+  stateFile.setValue(
+    'templates',
+    'multiChannelRoutingConfigSms',
+    multiChannelRoutingConfigSmsTemplate
+  );
 
-  await new StorageHelper(`nhs-notify-${targetEnvrionment}-app-api-templates`, [
+  await new StorageHelper(`nhs-notify-${targetEnvironment}-app-api-templates`, [
     smsTemplate,
     multiChannelRoutingConfigNhsAppTemplate,
     multiChannelRoutingConfigEmailTemplate,

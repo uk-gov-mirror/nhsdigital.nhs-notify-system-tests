@@ -1,6 +1,6 @@
 /* eslint-disable security/detect-non-literal-regexp */
 
-import { cis2Login, logOut } from '../functions/login';
+import { cis2Login, logOut } from '../steps/login';
 import { TemplateMgmtBasePage } from '../pages/template-mgmt-base-page';
 import {
   chooseTemplate,
@@ -8,7 +8,7 @@ import {
   previewPage,
   startNewTemplate,
   startPage,
-} from '../functions/template-mgmt-e2e-common-steps';
+} from '../steps/template-mgmt-e2e-common-steps';
 import test from 'playwright/test';
 
 test.use({ storageState: { cookies: [], origins: [] } });

@@ -9,13 +9,11 @@ import {
   startNewTemplate,
   deleteTemplate,
   createEmailTemplate,
-} from '../../functions/template-mgmt-e2e-common-steps';
+} from '../../steps/template-mgmt-e2e-common-steps';
 
 test.use({ storageState: 'login-state/delete.json' });
 
-test(`User deletes a template`, async ({
-  page,
-}) => {
+test(`User deletes a template`, async ({ page }) => {
   const props = {
     basePage: new TemplateMgmtBasePage(page),
   };

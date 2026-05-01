@@ -5,10 +5,14 @@ import {
   PutCommand,
 } from '@aws-sdk/lib-dynamodb';
 
-export class StorageHelper<T extends { id: string; owner: string }> {
+export class StorageHelper<T extends string, U extends Record<T, unknown>> {
   private readonly ddbDocClient: DynamoDBDocumentClient;
 
-  constructor(private readonly tableName: string, private readonly data: T[]) {
+  constructor(
+    private readonly tableName: string,
+    private readonly keyNames: T[],
+    private readonly data: U[]
+  ) {
     const dynamoClient = new DynamoDBClient({ region: 'eu-west-2' });
     this.ddbDocClient = DynamoDBDocumentClient.from(dynamoClient);
   }
@@ -31,9 +35,7 @@ export class StorageHelper<T extends { id: string; owner: string }> {
       this.ddbDocClient.send(
         new DeleteCommand({
           TableName: this.tableName,
-          Key: {
-            id: item.id,
-          },
+          Key: Object.fromEntries(this.keyNames.map((key) => [key, item[key]])),
         })
       )
     );

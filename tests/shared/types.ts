@@ -1,7 +1,12 @@
 export type StaticClientConfig = {
   templates: {
-    campaignIds?: string[];
-    features?: { proofing?: boolean; routing?: boolean };
+    campaignIds: string[];
+    features?: {
+      proofing?: boolean;
+      routing?: boolean;
+      legacyLetters?: boolean;
+      letterAuthoring?: boolean;
+    };
   };
   auth: {
     name: string;
